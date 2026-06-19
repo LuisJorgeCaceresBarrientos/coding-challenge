@@ -2,6 +2,7 @@ import { Component, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/services/api.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-auth',
@@ -19,16 +20,12 @@ export class AuthComponent {
   currentView: 'login' | 'register' = 'login';
   authUsername = '';
   authPassword = '';
-  errorMessage = '';
-  successMessage = '';
 
   /**
    * Cambia la vista entre login y registro, limpiando errores previos.
    */
   setView(view: 'login' | 'register'): void {
     this.currentView = view;
-    this.errorMessage = '';
-    this.successMessage = '';
     this.authUsername = '';
     this.authPassword = '';
   }
@@ -37,11 +34,8 @@ export class AuthComponent {
    * Ejecuta el flujo de inicio de sesión.
    */
   onLogin(): void {
-    this.errorMessage = '';
-    this.successMessage = '';
-
     if (!this.authUsername || !this.authPassword) {
-      this.errorMessage = 'Por favor, completa todos los campos.';
+      Swal.fire({ icon: 'warning', title: 'Campos vacíos', text: 'Por favor, completa todos los campos.' });
       return;
     }
 
@@ -51,7 +45,8 @@ export class AuthComponent {
         this.authSuccess.emit(); // Notificamos al componente padre
       },
       error: (err) => {
-        this.errorMessage = err.error?.error || 'Usuario o contraseña incorrectos.';
+        const errorMsg = err.error?.error || 'Usuario o contraseña incorrectos.';
+        Swal.fire({ icon: 'error', title: 'Error de acceso', text: errorMsg });
       }
     });
   }
@@ -60,21 +55,25 @@ export class AuthComponent {
    * Ejecuta el flujo de registro.
    */
   onRegister(): void {
-    this.errorMessage = '';
-    this.successMessage = '';
-
     if (!this.authUsername || !this.authPassword) {
-      this.errorMessage = 'Por favor, completa todos los campos.';
+      Swal.fire({ icon: 'warning', title: 'Campos vacíos', text: 'Por favor, completa todos los campos.' });
       return;
     }
 
     this.apiService.register(this.authUsername, this.authPassword).subscribe({
       next: () => {
-        this.successMessage = 'Registro exitoso. Ahora puedes iniciar sesión.';
-        this.setView('login');
+        Swal.fire({
+          icon: 'success',
+          title: '¡Registro Exitoso!',
+          text: 'Ahora puedes iniciar sesión con tus credenciales.',
+          confirmButtonText: 'Ir a Iniciar Sesión'
+        }).then(() => {
+          this.setView('login');
+        });
       },
       error: (err) => {
-        this.errorMessage = err.error?.error || 'Ocurrió un error al registrar el usuario.';
+        const errorMsg = err.error?.error || 'Ocurrió un error al registrar el usuario.';
+        Swal.fire({ icon: 'error', title: 'Error de registro', text: errorMsg });
       }
     });
   }

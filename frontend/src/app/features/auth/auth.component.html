@@ -1,17 +1,4 @@
 <div class="auth-wrapper">
-  <!-- Mensajes de estado globales para el módulo de Autenticación -->
-  @if (errorMessage) {
-    <div class="alert alert-error">
-      <strong>Error:</strong> {{ errorMessage }}
-    </div>
-  }
-
-  @if (successMessage) {
-    <div class="alert alert-success">
-      {{ successMessage }}
-    </div>
-  }
-
   <!-- VISTA 1: FORMULARIO DE INICIO DE SESIÓN -->
   @if (currentView === 'login') {
     <div class="card auth-card">
