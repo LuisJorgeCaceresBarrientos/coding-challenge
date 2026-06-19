@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # Servicio 1: API de Go (Fiber)
+  go-api:
+    build:
+      context: ./go-api
+      dockerfile: Dockerfile
+    container_name: go-api-container
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - NODE_API_URL=http://node-api:5000
+    depends_on:
+      - node-api
+    networks:
+      - challenge-network
+
+  # Servicio 2: API de Node.js (Express)
+  node-api:
+    build:
+      context: ./node-api
+      dockerfile: Dockerfile
+    container_name: node-api-container
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+    networks:
+      - challenge-network
+
+  # Servicio 3: Frontend en Angular (Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: angular-frontend-container
+    ports:
+      - "4200:80"
+    depends_on:
+      - go-api
+    networks:
+      - challenge-network
+
+networks:
+  challenge-network:
+    driver: bridge

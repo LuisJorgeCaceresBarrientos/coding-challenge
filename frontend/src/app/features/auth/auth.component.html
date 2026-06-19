@@ -1,0 +1,88 @@
+<div class="auth-wrapper">
+  <!-- Mensajes de estado globales para el módulo de Autenticación -->
+  @if (errorMessage) {
+    <div class="alert alert-error">
+      <strong>Error:</strong> {{ errorMessage }}
+    </div>
+  }
+
+  @if (successMessage) {
+    <div class="alert alert-success">
+      {{ successMessage }}
+    </div>
+  }
+
+  <!-- VISTA 1: FORMULARIO DE INICIO DE SESIÓN -->
+  @if (currentView === 'login') {
+    <div class="card auth-card">
+      <h2>Iniciar Sesión</h2>
+      <p class="card-desc">Ingresa tus credenciales para acceder al procesador de matrices.</p>
+      
+      <div class="form-group">
+        <label for="username">Usuario</label>
+        <input 
+          type="text" 
+          id="username" 
+          [(ngModel)]="authUsername" 
+          placeholder="ej. luis_dev" 
+          class="form-control"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input 
+          type="password" 
+          id="password" 
+          [(ngModel)]="authPassword" 
+          placeholder="••••••••" 
+          class="form-control"
+        />
+      </div>
+
+      <button (click)="onLogin()" class="btn btn-primary">Ingresar</button>
+
+      <div class="auth-switch">
+        ¿No tienes cuenta? 
+        <a href="javascript:void(0)" (click)="setView('register')">Regístrate aquí</a>
+      </div>
+    </div>
+  }
+
+  <!-- VISTA 2: FORMULARIO DE REGISTRO -->
+  @if (currentView === 'register') {
+    <div class="card auth-card">
+      <h2>Crear Cuenta</h2>
+      <p class="card-desc">Registra un nuevo usuario para empezar a realizar cálculos.</p>
+      
+      <div class="form-group">
+        <label for="reg-username">Usuario</label>
+        <input 
+          type="text" 
+          id="reg-username" 
+          [(ngModel)]="authUsername" 
+          placeholder="Crea un nombre de usuario" 
+          class="form-control"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="reg-password">Contraseña</label>
+        <input 
+          type="password" 
+          id="reg-password" 
+          [(ngModel)]="authPassword" 
+          placeholder="Crea una contraseña" 
+          class="form-control"
+        />
+      </div>
+
+      <button (click)="onRegister()" class="btn btn-primary">Registrarse</button>
+
+      <div class="auth-switch">
+        ¿Ya tienes cuenta? 
+        <a href="javascript:void(0)" (click)="setView('login')">Inicia sesión aquí</a>
+      </div>
+    </div>
+  }
+</div>

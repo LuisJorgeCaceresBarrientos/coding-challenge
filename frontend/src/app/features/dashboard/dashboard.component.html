@@ -1,0 +1,181 @@
+<div class="dashboard-container">
+  
+  @if (errorMessage) {
+    <div class="alert alert-error">
+      <strong>Error:</strong> {{ errorMessage }}
+    </div>
+  }
+
+  <!-- Panel de configuración e ingreso de matriz -->
+  <div class="card">
+    <div class="dashboard-header">
+      <h2>Configuración de la Matriz</h2>
+      <button (click)="onLogout()" class="btn btn-secondary">Cerrar Sesión</button>
+    </div>
+
+    <div class="dimensions-form">
+      <div class="form-group inline">
+        <label>Filas (M):</label>
+        <input 
+          type="number" 
+          [(ngModel)]="matrixRows" 
+          (change)="generateEmptyMatrix()" 
+          min="1" 
+          max="10" 
+          class="form-control compact"
+        />
+      </div>
+      <div class="form-group inline">
+        <label>Columnas (N):</label>
+        <input 
+          type="number" 
+          [(ngModel)]="matrixCols" 
+          (change)="generateEmptyMatrix()" 
+          min="1" 
+          max="10" 
+          class="form-control compact"
+        />
+      </div>
+      <button (click)="fillWithRandomValues()" class="btn btn-secondary">Llenar con Aleatorios</button>
+    </div>
+
+    <!-- Cuadrícula dinámica para ingresar los valores -->
+    <!-- Se usa trackByRow y trackByCol para garantizar el rendimiento sin destruir el DOM -->
+    <div class="matrix-grid-container">
+      <p class="hint">Ingresa los valores numéricos en la matriz abajo:</p>
+      <div class="matrix-grid">
+        @for (row of matrixInput; track trackByRow($index); let rIndex = $index) {
+          <div class="matrix-row">
+            @for (val of row; track trackByCol($index); let cIndex = $index) {
+              <input 
+                type="number" 
+                [(ngModel)]="matrixInput[rIndex][cIndex]" 
+                class="matrix-cell"
+              />
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <button 
+      (click)="submitMatrix()" 
+      [disabled]="isProcessing" 
+      class="btn btn-primary btn-block"
+    >
+      {{ isProcessing ? 'Procesando...' : 'Calcular Rotación y Factorización QR' }}
+    </button>
+  </div>
+
+  <!-- SECCIÓN DE RESULTADOS -->
+  @if (processingResult) {
+    <div class="results-container">
+      
+      <!-- Bloque de Estadísticas Consolidadas -->
+      <div class="card stats-card">
+        <h3>Estadísticas (API Node.js)</h3>
+        <p class="card-desc">Cálculos consolidados sobre todos los valores de las matrices resultantes.</p>
+        
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span class="stat-label">Valor Máximo</span>
+            <span class="stat-val">{{ processingResult.stats.maxValue | number:'1.2-4' }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Valor Mínimo</span>
+            <span class="stat-val">{{ processingResult.stats.minValue | number:'1.2-4' }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Promedio Global</span>
+            <span class="stat-val">{{ processingResult.stats.average | number:'1.2-4' }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Suma Total</span>
+            <span class="stat-val">{{ processingResult.stats.totalSum | number:'1.2-4' }}</span>
+          </div>
+        </div>
+
+        <div class="diagonal-checks">
+          <h4>Verificación de Matrices Diagonales:</h4>
+          <ul>
+            <li>
+              ¿Es la matriz <strong>Rotada</strong> diagonal?
+              <span [class]="processingResult.stats.isRotatedDiagonal ? 'badge success' : 'badge danger'">
+                {{ processingResult.stats.isRotatedDiagonal ? 'Sí' : 'No' }}
+              </span>
+            </li>
+            <li>
+              ¿Es la matriz <strong>Q</strong> diagonal?
+              <span [class]="processingResult.stats.isQDiagonal ? 'badge success' : 'badge danger'">
+                {{ processingResult.stats.isQDiagonal ? 'Sí' : 'No' }}
+              </span>
+            </li>
+            <li>
+              ¿Es la matriz <strong>R</strong> diagonal?
+              <span [class]="processingResult.stats.isRDiagonal ? 'badge success' : 'badge danger'">
+                {{ processingResult.stats.isRDiagonal ? 'Sí' : 'No' }}
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Cuadrícula con la visualización de las matrices -->
+      <div class="matrices-display-grid">
+        
+        <div class="card matrix-card">
+          <h4>Matriz Original (M x N)</h4>
+          <div class="matrix-table">
+            @for (row of processingResult.original; track $index) {
+              <div class="matrix-table-row">
+                @for (val of row; track $index) {
+                  <div class="matrix-table-cell">{{ val | number:'1.0-2' }}</div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="card matrix-card">
+          <h4>Matriz Rotada (N x M)</h4>
+          <div class="matrix-table">
+            @for (row of processingResult.rotated; track $index) {
+              <div class="matrix-table-row">
+                @for (val of row; track $index) {
+                  <div class="matrix-table-cell">{{ val | number:'1.0-2' }}</div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="card matrix-card">
+          <h4>Matriz Q (Ortogonal)</h4>
+          <div class="matrix-table">
+            @for (row of processingResult.q; track $index) {
+              <div class="matrix-table-row">
+                @for (val of row; track $index) {
+                  <div class="matrix-table-cell" title="{{ val }}">{{ val | number:'1.2-4' }}</div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="card matrix-card">
+          <h4>Matriz R (Triangular Superior)</h4>
+          <div class="matrix-table">
+            @for (row of processingResult.r; track $index) {
+              <div class="matrix-table-row">
+                @for (val of row; track $index) {
+                  <div class="matrix-table-cell" title="{{ val }}">{{ val | number:'1.2-4' }}</div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+      </div>
+    </div>
+  }
+</div>

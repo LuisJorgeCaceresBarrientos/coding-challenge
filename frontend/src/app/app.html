@@ -1,0 +1,17 @@
+<div class="app-container">
+  <!-- Cabecera simple del Reto Técnico -->
+  <header class="app-header">
+    <h1>Reto Técnico - Matriz & Estadísticas</h1>
+    <p class="subtitle">Interseguro Coding Challenge</p>
+  </header>
+
+  <!-- Si NO está autenticado, mostramos el componente de autenticación -->
+  @if (!isAuthenticated) {
+    <app-auth (authSuccess)="onAuthSuccess()"></app-auth>
+  }
+
+  <!-- Si SÍ está autenticado, mostramos el dashboard interactivo -->
+  @if (isAuthenticated) {
+    <app-dashboard (logoutEvent)="onLogout()"></app-dashboard>
+  }
+</div>
