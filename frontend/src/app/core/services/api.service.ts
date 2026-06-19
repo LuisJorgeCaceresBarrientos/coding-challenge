@@ -7,8 +7,8 @@ import { Observable } from 'rxjs';
 })
 export class ApiService {
   private http = inject(HttpClient);
-  // URL base de la API en Go (en desarrollo local apuntamos a localhost:8080)
-  private baseURL = 'http://localhost:8080/api';
+  // URL base de la API en Go (detecta automáticamente si es localhost o la IP del servidor)
+  private baseURL = `http://${window.location.hostname}:8080/api`;
 
   /**
    * Guarda el token JWT en el localStorage del navegador.
